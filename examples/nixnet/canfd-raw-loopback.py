@@ -157,7 +157,7 @@ try:
     )
     check_for_error(set_property_response.status)
 
-    #Start Read Session
+    #Start Read Session 
     start_response = client.Start(
         nixnet_types.StartRequest(
             session = session_rx,
