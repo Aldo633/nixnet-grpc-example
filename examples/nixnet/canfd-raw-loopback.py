@@ -70,7 +70,6 @@ def check_for_error(status):
 
 i = 0
 #define frames
-
 payload_list = [0x7F] *64
 canfdframe=nixnet_types.FrameRequest(identifier=CAN_IDENTIFIER, type = nixnet_types.FRAME_TYPE_CANFDBRS_DATA, payload= bytes(payload_list))
 canfdframes=[nixnet_types.FrameBufferRequest(can= canfdframe)]
@@ -192,7 +191,7 @@ try:
         check_for_error(write_frame_response.status)
         frame_buffer = read_frame_response.buffer
 
-        print("Frame received:")
+        print("Frame received:"+"ID = "+str(frame_buffer[0].can.identifier))
         for j in range (0,len(frame_buffer)):
             #print("Payload " + str(frame_buffer[j].can.payload)+ "\n")
             #Print out frames received
