@@ -29,7 +29,7 @@ If they are not passed in as command line arguments, then by default the server 
 """
 
 import sys
-
+import time
 import grpc
 from numpy import uint64
 import nixnet_pb2 as nixnet_types
@@ -70,7 +70,7 @@ def check_for_error(status):
 
 i = 0
 #define frames
-payload_list = [0x7F] *64
+payload_list = [0x7F, 0x3F] *6
 canfdframe=nixnet_types.FrameRequest(identifier=CAN_IDENTIFIER, type = nixnet_types.FRAME_TYPE_CANFDBRS_DATA, payload= bytes(payload_list))
 canfdframes=[nixnet_types.FrameBufferRequest(can= canfdframe)]
 
@@ -106,9 +106,10 @@ try:
             mode = nixnet_types.CREATE_SESSION_MODE_FRAME_IN_STREAM,
         )
     )
-
     check_for_error(create_session_response.status)
     session_rx = create_session_response.session
+
+    print("session" +str(session_rx))
     print("Sessions Created Successfully.\n")
 
     
@@ -133,6 +134,18 @@ try:
     )
     check_for_error(set_property_response.status)
 
+        #Enable Termination
+    set_property_response = client.SetProperty(
+        nixnet_types.SetPropertyRequest(
+            session=session_tx,
+            property_id=nixnet_types.PROPERTY_SESSION_INTF_CAN_TERM,
+            u64_scalar=nixnet_types.PROPERTY_VALUE_CAN_TERM_ON,
+        )
+    )
+    check_for_error(set_property_response.status)
+    
+    
+
     
     
     #Set Rx Session Properties
@@ -156,24 +169,42 @@ try:
     )
     check_for_error(set_property_response.status)
 
+            #Enable Termination
+    set_property_response = client.SetProperty(
+        nixnet_types.SetPropertyRequest(
+            session=session_rx,
+            property_id=nixnet_types.PROPERTY_SESSION_INTF_CAN_TERM,
+            u64_scalar=nixnet_types.PROPERTY_VALUE_CAN_TERM_ON,
+        )
+    )
+    check_for_error(set_property_response.status)
+
     #Start Read Session 
     start_response = client.Start(
         nixnet_types.StartRequest(
             session = session_rx,
             scope = nixnet_types.START_STOP_SCOPE_NORMAL
         )
+    ) 
+    #Start Read Session 
+    start_response = client.Start(
+        nixnet_types.StartRequest(
+            session = session_rx,
+            scope = nixnet_types.START_STOP_SCOPE_INTERFACE_ONLY
+        )
     )  
-
-
+    check_for_error(start_response.status)
+    print(str(start_response.status))
 
     
     print("Writing 10 frames to CAN Interface.\n")
     while i < 10:
-        
+         
 
+        
         # Update the frame data
         write_frame_response = client.WriteFrame(
-            nixnet_types.WriteFrameRequest(session=session_tx, buffer=canfdframes, timeout_raw= 10.0)
+            nixnet_types.WriteFrameRequest(session=session_tx, buffer=canfdframes, timeout_raw= 5.0)
         )
         check_for_error(write_frame_response.status)
 
@@ -183,15 +214,15 @@ try:
             nixnet_types.ReadFrameRequest(
                 session=session_rx,
                 number_of_frames = NUMBER_OF_FRAMES,
-                max_payload_per_frame = 64,
+                max_payload_per_frame = len(payload_list),
                 protocol = nixnet_types.PROTOCOL_CAN,
-                timeout_raw = 10.0
+                timeout_raw = 5.0
             )
         )
         check_for_error(write_frame_response.status)
         frame_buffer = read_frame_response.buffer
 
-        print("Frame received:"+"ID = "+str(frame_buffer[0].can.identifier))
+        #print("Frame received:"+"ID = "+str(frame_buffer[0].can.identifier))
         for j in range (0,len(frame_buffer)):
             #print("Payload " + str(frame_buffer[j].can.payload)+ "\n")
             #Print out frames received

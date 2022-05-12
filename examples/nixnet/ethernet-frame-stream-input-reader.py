@@ -105,7 +105,7 @@ try:
             cluster_name="",
             list="",
             interface_name=INTERFACE,
-            mode=nixnet_types.CREATE_SESSION_MODE_FRAME_IN_STREAM,
+            mode=nixnet_types.CREATE_SESSION_MODE_FRAME_OUT_STREAM,
         )
     )
     check_for_error(create_session_response.status)
