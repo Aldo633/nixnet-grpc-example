@@ -134,19 +134,16 @@ try:
     )
     check_for_error(set_property_response.status)
 
-        #Enable Termination
+       #Set Termination
     set_property_response = client.SetProperty(
         nixnet_types.SetPropertyRequest(
             session=session_tx,
             property_id=nixnet_types.PROPERTY_SESSION_INTF_CAN_TERM,
-            u64_scalar=nixnet_types.PROPERTY_VALUE_CAN_TERM_ON,
+            u32_scalar=nixnet_types.PROPERTY_VALUE_CAN_TERM_ON,
         )
     )
     check_for_error(set_property_response.status)
-    
-    
-
-    
+       
     
     #Set Rx Session Properties
     #Set CAN Header Data Rate
@@ -169,15 +166,28 @@ try:
     )
     check_for_error(set_property_response.status)
 
-            #Enable Termination
+
+   
+
+    #Set Termination
     set_property_response = client.SetProperty(
         nixnet_types.SetPropertyRequest(
             session=session_rx,
             property_id=nixnet_types.PROPERTY_SESSION_INTF_CAN_TERM,
-            u64_scalar=nixnet_types.PROPERTY_VALUE_CAN_TERM_ON,
+            u32_scalar=nixnet_types.PROPERTY_VALUE_CAN_TERM_ON,
         )
     )
     check_for_error(set_property_response.status)
+    
+    get_property_response=client.GetProperty(
+        nixnet_types.GetPropertyRequest(
+            session = session_rx,
+            property_id = nixnet_types.PROPERTY_SESSION_INTF_CAN_TERM,
+        )
+    )
+    check_for_error(get_property_response.status)
+    print("Termination Property Value: " +str(get_property_response.u32_scalar))
+
 
     #Start Read Session 
     start_response = client.Start(
@@ -185,16 +195,8 @@ try:
             session = session_rx,
             scope = nixnet_types.START_STOP_SCOPE_NORMAL
         )
-    ) 
-    #Start Read Session 
-    start_response = client.Start(
-        nixnet_types.StartRequest(
-            session = session_rx,
-            scope = nixnet_types.START_STOP_SCOPE_INTERFACE_ONLY
-        )
-    )  
+    )
     check_for_error(start_response.status)
-    print(str(start_response.status))
 
     
     print("Writing 10 frames to CAN Interface.\n")
