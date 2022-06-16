@@ -231,7 +231,7 @@ try:
         #check_for_error(write_frame_response.status)
         frame_buffer = read_frame_response.buffer
 
-        if(elapsed_time>0.005):
+        if(elapsed_time>0.001):
             print("Iteration: ", i,"/nElapsed time: ",elapsed_time)
         #print("Frame received:"+"ID = "+str(frame_buffer[0].can.identifier))
         for j in range (0,len(frame_buffer)):
