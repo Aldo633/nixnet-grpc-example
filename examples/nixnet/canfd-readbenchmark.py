@@ -201,18 +201,19 @@ try:
 
     
     print("Writing 10 frames to CAN Interface.\n")
-    while i < 10:
+    while i < 10000:
          
 
         
         # Update the frame data
+        
         write_frame_response = client.WriteFrame(
-            nixnet_types.WriteFrameRequest(session=session_tx, buffer=canfdframes, timeout_raw= 5.0)
+            nixnet_types.WriteFrameRequest(session=session_tx, buffer=canfdframes, timeout = nixnet_types.TIME_OUT_NONE)
         )
         check_for_error(write_frame_response.status)
 
         print("Frame sent:")
-
+        
         start_time = time.time()
         
         read_frame_response = client.ReadFrame(
@@ -225,12 +226,13 @@ try:
             )
         )
         stop_time = time.time()
-        elapsed_time = stop_time - start_time
+        elapsed_time = (stop_time - start_time)
         
-        check_for_error(write_frame_response.status)
+        #check_for_error(write_frame_response.status)
         frame_buffer = read_frame_response.buffer
 
-        print("Elapsed time: ",elapsed_time)
+        if(elapsed_time>0.005):
+            print("Iteration: ", i,"/nElapsed time: ",elapsed_time)
         #print("Frame received:"+"ID = "+str(frame_buffer[0].can.identifier))
         for j in range (0,len(frame_buffer)):
             #print("Payload " + str(frame_buffer[j].can.payload)+ "\n")
