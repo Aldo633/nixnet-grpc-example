@@ -31,7 +31,7 @@ case "$1" in
 		do_start
 		;;
 	*)
-		echo "Usage: $0 (start|stop|restart)
+		echo "Usage: $0 (start|stop|restart)"
 		exit 1
 		;;
 	esac
